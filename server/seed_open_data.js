@@ -297,16 +297,11 @@ async function seedOpenData() {
 
     // Check if session already exists in DB (Requirement 6 - Idempotent Seed Import)
     const existingSession = await prisma.session.findUnique({ where: { code: ds.code } });
+    if (existingSession) {
+      console.log(`⚡ [SEED IDEMPOTENT] Oturum ${ds.code} zaten veritabanında mevcut. İçe aktarım atlanıyor.`);
+      continue;
+    }
     let executiveSummary = null;
-
-    if (existingSession && existingSession.analysis) {
-      console.log(`⚡ [SEED IDEMPOTENT] Oturum ${ds.code} zaten veritabanında mevcut ve analiz edilmiş.`);
-      console.log(`   -> Saklanan LLM metinleri yeniden kullanılıyor, LLM API çağrısı ATLANDI.`);
-      const existingAnalysis = typeof existingSession.analysis === 'string' ? JSON.parse(existingSession.analysis) : existingSession.analysis;
-      if (existingAnalysis) {
-        executiveSummary = existingAnalysis.executiveSummary || null;
-      }
-    } else {
       // LLM Yönetici Özeti Üret (Sadece ilk tohumlamada)
       console.log(`🌐 [SEED LLM CALL] Yeni oturum ${ds.code} için Yönetici Özeti oluşturuluyor...`);
       const execSummaryData = {
@@ -322,7 +317,6 @@ async function seedOpenData() {
         voteCompletionRate
       };
       executiveSummary = await generateExecutiveSummary(execSummaryData, ds.code).catch(() => null);
-    }
 
     if (executiveSummary) {
       analysisResults.executiveSummary = executiveSummary;

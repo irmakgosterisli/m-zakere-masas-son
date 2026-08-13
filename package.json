@@ -10,7 +10,7 @@
     "dev": "concurrently \"npm.cmd run dev:server\" \"npm.cmd run dev:client\"",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "node server/index.js",
+    "start": "npx prisma db push --accept-data-loss && node prisma/seed.js && node server/seed_open_data.js && node server/index.js",
     "test": "vitest run"
   },
   "dependencies": {
