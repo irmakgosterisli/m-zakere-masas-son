@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://YOUR_BACKEND_URL/api/:path*"
+    },
+    {
+      "source": "/(live|report|admin)/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/(live|report|admin)",
+      "destination": "/index.html"
+    }
+  ]
+}

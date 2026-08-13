@@ -77,7 +77,8 @@ export default function App() {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    const socket = io();
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || window.location.origin;
+    const socket = io(backendUrl);
     socketRef.current = socket;
 
     socket.on('session-state', (state) => {
