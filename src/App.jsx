@@ -77,7 +77,7 @@ export default function App() {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || window.location.origin;
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://m-zakere-masas-son-1.onrender.com';
     const socket = io(backendUrl);
     socketRef.current = socket;
 
