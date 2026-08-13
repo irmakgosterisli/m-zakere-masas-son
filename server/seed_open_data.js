@@ -362,33 +362,38 @@ async function seedOpenData() {
       opinionIdMap.set(origId, op.id);
     });
 
-    for (const p of participants) {
-      const createdP = await prisma.participant.create({
-        data: {
-          sessionId: createdSession.id,
-          nickname: p.nickname,
-          justification: p.justification,
-          isBot: false,
-        }
-      });
+    // Katılımcıları toplu olarak ekle (createMany)
+    const participantsData = participants.map(p => ({
+      id: p.id,
+      sessionId: createdSession.id,
+      nickname: p.nickname,
+      justification: p.justification,
+      isBot: false,
+    }));
 
-      const voteData = [];
+    await prisma.participant.createMany({
+      data: participantsData
+    });
+
+    // Oyları topla ve toplu olarak ekle (createMany)
+    const votesData = [];
+    participants.forEach(p => {
       Object.entries(p.votes).forEach(([origOpId, val]) => {
         const prismaOpId = opinionIdMap.get(origOpId);
         if (prismaOpId && val !== undefined) {
-          voteData.push({
-            participantId: createdP.id,
+          votesData.push({
+            participantId: p.id,
             opinionId: prismaOpId,
             value: val
           });
         }
       });
+    });
 
-      if (voteData.length > 0) {
-        await prisma.vote.createMany({
-          data: voteData
-        });
-      }
+    if (votesData.length > 0) {
+      await prisma.vote.createMany({
+        data: votesData
+      });
     }
 
     console.log(`✅ [BAŞARILI] ${ds.code} oturumu ${statements.length} görüş ve ${participants.length} aktif katılımcı ile veritabanına aktarıldı!`);
